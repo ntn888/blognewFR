@@ -177,12 +177,12 @@ for post in "$POSTS"/*.md; do
   } > "${PUB}/posts/${slug}/index.html"
 
   # ---------- record metadata ----------
-  echo "${date_part}|${title}|${category}|${slug}" >> "$META"
+  echo "${rawdate}|${title}|${category}|${slug}" >> "$META"
 
   # ---------- record tags separately ----------
   echo "$tags" | while IFS= read -r tag; do
     [ -z "$tag" ] && continue
-    echo "${date_part}|${title}|${tag}|${slug}" >> "$META.tags"
+    echo "${rawdate}|${title}|${tag}|${slug}" >> "$META.tags"
   done
 done
 
@@ -200,7 +200,7 @@ sort -t'|' -k3,3 -k1,1r "$META" > "$META.sorted"
   prev_cat=""
   first=1
   while IFS='|' read -r d t c s; do
-    dd=$(fmt_date "$d")
+    dd=$(fmt_date "$(echo "$d" | cut -dT -f1)")
     if [ "$c" != "$prev_cat" ]; then
       if [ "$first" -eq 0 ]; then
         echo '                </ul>'
@@ -237,7 +237,7 @@ if [ -f "$META.tags" ]; then
       echo '            <ul class="post-list">'
 
       grep "|${tag}|" "$META.tags.sorted" | while IFS='|' read -r d t tg s; do
-        dd=$(fmt_date "$d")
+        dd=$(fmt_date "$(echo "$d" | cut -dT -f1)")
         echo "                <li><time>${dd}</time> <a href=\"/posts/${s}/\">${t}</a></li>"
       done
 
