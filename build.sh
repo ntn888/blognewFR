@@ -54,7 +54,7 @@ PNAV
 page_footer() {
   cat <<PFOOT
     <footer>
-        <p>&copy; ${AUTHOR}</p>
+        <p><a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license"><img src="https://licensebuttons.net/l/by-sa/4.0/88x31.png" alt="Creative Commons BY-SA 4.0" style="height:32px;vertical-align:middle;margin-right:8px;"></a>${AUTHOR}</p>
     </footer>
 </body>
 </html>
