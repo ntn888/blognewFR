@@ -24,14 +24,14 @@ We'll take the baseline minimal Alpine Linux image, and build a custom local ima
 
    FROM docker.io/library/alpine
 
-   # Python (already used by the image)
+   # Python
    RUN apk add --no-cache python3 python3-dev
 
-   # GNU Arm embedded toolchain for the MSPM0G3507 DriverLib examples.
+   # GNU Arm embedded toolchain
    #   gcc-arm-none-eabi      -> arm-none-eabi-gcc, arm-none-eabi-ar, libgcc
    #   binutils-arm-none-eabi -> pulled in as a dependency: arm-none-eabi-objcopy/-ld
    #   newlib-arm-none-eabi   -> bare-metal C library + headers (stdint.h, string.h)
-   #   make                   -> the examples' documented build command
+   #   make                   -> 
    RUN apk add --no-cache \
            make \
            gcc-arm-none-eabi \
