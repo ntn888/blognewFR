@@ -41,7 +41,7 @@ local function render(code)
   fh:close()
 
   local ok, res = pcall(pandoc.pipe, "d2", {
-    "--format", "svg",
+    "--no-xml-tag",
     "--theme", LIGHT_THEME,
     "--dark-theme", DARK_THEME,
     input, output,
