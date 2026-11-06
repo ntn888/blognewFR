@@ -1,10 +1,11 @@
 # Build environment for the sh-based static site generator.
 #
 # Build the image:
-#   docker build -t myblog .
+#   podman build -t myblog .
 #
 # Build the site (source mounted read-write at /site, output appears in ./public):
-#   docker run --rm -v "$PWD:/site" myblog
+#   podman run --rm -v "$PWD:/site" myblog
+#   podman run --rm -v "$PWD:/site" myblog make publish
 #
 # Notes:
 # - alpine ships neither `pandoc` nor `d2`, so both are installed from their
