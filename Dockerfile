@@ -5,7 +5,20 @@
 #
 # Build the site (source mounted read-write at /site, output appears in ./public):
 #   podman run --rm -v "$PWD:/site" myblog
-#   podman run --rm -v "$PWD:/site" myblog make publish
+#
+# Publish to GitHub Pages (needs your host git identity + SSH key):
+#   podman run --rm \
+#       -v "$PWD:/site" \
+#       -v "$HOME/.gitconfig:/root/.gitconfig:ro" \
+#       -v "$HOME/.ssh:/root/.ssh:ro" \
+#       -e GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" \
+#       myblog make publish
+#
+# The read-only ~/.gitconfig provides your commit identity
+# (user.name/user.email) and, if configured, init.defaultBranch.
+# The read-only ~/.ssh provides your private key and known_hosts for the
+# git@github.com push. Ensure private keys are chmod 600; on SELinux hosts
+# append :Z to the .ssh mount or pass --security-opt label=disable.
 #
 # Notes:
 # - alpine ships neither `pandoc` nor `d2`, so both are installed from their

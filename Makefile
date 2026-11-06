@@ -10,7 +10,7 @@ publish: pages
 	@echo "🚀 Deploying to GitHub Pages..."
 	@mkdir -p gh-pages-deploy
 	@cp -r public/. gh-pages-deploy/
-	@cd gh-pages-deploy && git init
+	@cd gh-pages-deploy && git init -b main
 	@cd gh-pages-deploy && git add .
 	@cd gh-pages-deploy && git commit -m "Publish site $(shell date '+%Y-%m-%d %H:%M')"
 	@cd gh-pages-deploy && git remote add origin git@github.com:ntn888/ntn888.github.io.git
