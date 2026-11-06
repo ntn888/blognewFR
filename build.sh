@@ -6,10 +6,17 @@ CONTENT="content"
 POSTS="${CONTENT}/posts"
 TEMPLATES="templates"
 STATIC="static"
+LUA_FILTER="${TEMPLATES}/d2.lua"
 
 TITLE_SITE="Ajit Ananthadevan"
 SLOGAN="Interested in Everything Embedded"
 AUTHOR="Ajit Ananthadevan"
+
+command -v d2 >/dev/null 2>&1 || {
+  echo "error: 'd2' not found in PATH." >&2
+  echo "Install it from https://d2lang.com (see the Install docs)." >&2
+  exit 1
+}
 
 rm -rf "$PUB"
 mkdir -p "$PUB"
@@ -134,7 +141,7 @@ for post in "$POSTS"/*.md; do
 
   body=$(echo "$norm" | awk '/^---$/{if(++c==2)next} c>=2')
   echo "  -> /posts/${slug}/ — ${title}"
-  html_body=$(echo "$body" | pandoc --from markdown --to html5 --syntax-highlighting=pygments)
+  html_body=$(echo "$body" | pandoc --from markdown --to html5 --syntax-highlighting=pygments --lua-filter="$LUA_FILTER")
 
   date_part=$(echo "$rawdate" | cut -dT -f1)
   display_date=$(fmt_date "$date_part")
@@ -251,7 +258,7 @@ fi
 
 # ---------- build homepage ----------
 echo "==> Building homepage..."
-index_body=$(pandoc --from markdown --to html5 --syntax-highlighting=pygments < "$CONTENT/_index.md")
+index_body=$(pandoc --from markdown --to html5 --syntax-highlighting=pygments --lua-filter="$LUA_FILTER" < "$CONTENT/_index.md")
 
 {
   page_header "${TITLE_SITE}"

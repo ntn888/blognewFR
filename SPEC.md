@@ -12,9 +12,10 @@ A POSIX `sh`-based static site generator that transforms Markdown content + HTML
 |---|---|
 | `build.sh` | POSIX `sh` script; the sole build orchestrator |
 | `pandoc` | Markdown → HTML5 conversion with Pygments syntax highlighting |
+| `d2` | Renders inline `d2` code blocks to SVG via the `templates/d2.lua` pandoc filter |
 | `awk` / `sed` / `tr` | Frontmatter parsing, line-ending normalization, string manipulation |
 
-**Prerequisite:** `pandoc` must be installed (installable via `apk add pandoc` on Alpine).
+**Prerequisites:** `pandoc` must be installed (installable via `apk add pandoc` on Alpine). `d2` must also be installed and on `PATH` (see <https://d2lang.com> for install methods). `build.sh` aborts early with a clear error if `d2` is missing.
 
 ---
 
@@ -29,6 +30,7 @@ A POSIX `sh`-based static site generator that transforms Markdown content + HTML
 ├── templates/
 │   ├── 404.html               # Copied to /404/
 │   ├── _head_extend.html      # Injected before </head> on *every* page
+│   ├── d2.lua                 # pandoc Lua filter: renders ```d2 blocks to inline SVG
 │   ├── services.html          → /services/
 │   └── donate.html            → /donate/
 └── static/                    # Blind-copied into public/ (including dotfiles)
@@ -122,6 +124,24 @@ All page URLs are clean (no `.html` suffix) using directory-based `index.html`.
 
 The content of `templates/_head_extend.html` (a Plausible analytics script tag) is injected before `</head>` on every generated HTML page using `awk`.
 
+### 5.7 D2 Diagrams
+
+D2 diagrams may be authored inline within any Markdown source (post body or `_index.md`) as a fenced code block whose info string is `d2`:
+
+````markdown
+```d2
+client -> server: request
+server -> db: query
+```
+````
+
+The `templates/d2.lua` pandoc filter intercepts these blocks, invokes the `d2` CLI to render SVG, and replaces the block with an inline `<figure class="d2-diagram"><svg>…</svg></figure>`. Behaviour:
+
+- **Output:** inline SVG, themed with D2's default light theme (`0`) and dark theme (`200`); the SVG carries a `prefers-color-scheme` media query so it adapts to the site's dark mode automatically.
+- **Accessibility:** an optional `alt` attribute supplies the SVG's `aria-label` and `<title>` (default `diagram`), e.g. `` ```d2 {alt="Clock tree"} ``.
+- **Sizing:** `static/main.css` caps diagram width at the content width and centres it.
+- **Failures:** if `d2` cannot render a block, the filter emits the raw source in a `.d2-error` block (rendered with the amber accent border) rather than aborting the entire build.
+
 ---
 
 ## 6. Unified Stylesheet (`static/main.css`)
@@ -166,9 +186,9 @@ sh build.sh
 
 No configuration file needed; all paths are hardcoded within the script. The script:
 1. Cleans `public/`
-2. Copies static assets
+2. Verifies `d2` is available, then copies static assets
 3. Injects `_head_extend` into template pages
-4. Processes each post (parse frontmatter → pandoc conversion → HTML page)
+4. Processes each post (parse frontmatter → pandoc conversion with `d2.lua` filter → HTML page)
 5. Builds `/posts/` archive grouped by category
 6. Builds tag pages
 7. Builds homepage from `_index.md`
@@ -187,3 +207,5 @@ No configuration file needed; all paths are hardcoded within the script. The scr
 | Pandoc deprecated flags | Uses `--syntax-highlighting` (not `--highlight-style`) |
 | No posts matching a tag | Tag page still generated with empty list |
 | Subshell pipe isolation | Tag metadata stored in separate `.tags` temp file to avoid POSIX `sh` subshell scoping issues |
+| `d2` missing from `PATH` | `build.sh` aborts immediately with an install hint |
+| Invalid `d2` source | Filter emits a `.d2-error` block with the raw source; build continues |
